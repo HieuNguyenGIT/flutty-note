@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "958055587600",
+    "project_id": "fluttynotes-project",
+    "storage_bucket": "fluttynotes-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958055587600:android:4e55a30a8c0f1ad35a0f95",
+        "android_client_info": {
+          "package_name": "com.threecloud.fluttynotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBk7FGhORpummUNgNG77QWoMG8fT0FzpjU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
