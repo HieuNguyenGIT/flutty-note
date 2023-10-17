@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -57,21 +58,30 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(
-                        email: email, password: password);
-                print(userCredential);
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: email,
+                  password: password,
+                );
+                //devtools.log(userCredential.toString());
+                // use comma , to better formatting
+                if (mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/notes/',
+                    (route) => false,
+                  );
+                }
+                //pushnamedandremoveuntil basically remove the previous page essentially and place a new one
               } on FirebaseAuthException catch (e) {
                 // u should try to catch a specific error
                 //err type
-                //print(e.runtimeType);
+                //devtools.log(e.runtimeType);
                 //err type name
-                print(e.code);
+                devtools.log(e.code);
                 if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
-                  print('u entered invalid user');
+                  devtools.log('u entered invalid user');
                 } else {
-                  print('some other err');
-                  print(e.code);
+                  devtools.log('some other err');
+                  devtools.log(e.code);
                 }
               }
             },
