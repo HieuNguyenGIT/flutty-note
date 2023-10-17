@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:fluttynotes/constants/routes.dart';
+import 'package:fluttynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -73,17 +74,41 @@ class _LoginViewState extends State<LoginView> {
                   );
                 }
                 //pushnamedandremoveuntil basically remove the previous page essentially and place a new one
-              } on FirebaseAuthException catch (e) {
                 // u should try to catch a specific error
                 //err type
                 //devtools.log(e.runtimeType);
                 //err type name
+                // as of 17/10/2023 it would seem all kind of wrong input are called invalid credential
+              } on FirebaseAuthException catch (e) {
                 devtools.log(e.code);
-                if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
-                  devtools.log('u entered invalid user');
+                if (e.code == 'user-not-found') {
+                  if (mounted) {
+                    await showErrorDialog(
+                      context,
+                      'User not found',
+                    );
+                  }
+                } else if (e.code == 'wrong-password') {
+                  if (mounted) {
+                    await showErrorDialog(
+                      context,
+                      'Wrong credentials',
+                    );
+                  }
                 } else {
-                  devtools.log('some other err');
-                  devtools.log(e.code);
+                  if (mounted) {
+                    await showErrorDialog(
+                      context,
+                      'Error: ${e.code}',
+                    );
+                  }
+                }
+              } catch (e) {
+                if (mounted) {
+                  await showErrorDialog(
+                    context,
+                    e.toString(),
+                  );
                 }
               }
             },
