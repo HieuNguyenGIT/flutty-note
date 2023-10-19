@@ -88,7 +88,7 @@ class _NewNoteViewState extends State<NewNoteView> {
             case ConnectionState.done:
               // freecodecamp said to write as databasenote is needed
               // is not needed
-              _note = snapshot.data;
+              _note = snapshot.data as DatabaseNote?;
               _setupTextControllerListener();
               return TextField(
                 controller: _textController,

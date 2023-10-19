@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttynotes/constants/routes.dart';
 import 'package:fluttynotes/enum/menu_action.dart';
-import 'dart:developer' as devtools show log;
-
 import 'package:fluttynotes/services/auth/auth_service.dart';
 import 'package:fluttynotes/services/crud/notes_service.dart';
 
@@ -23,11 +21,11 @@ class _NotesViewState extends State<NotesView> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _notesService.close();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _notesService.close();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +45,7 @@ class _NotesViewState extends State<NotesView> {
               switch (value) {
                 case MenuAction.logout:
                   final shouldLogout = await showLogoutDialog(context);
-                  devtools.log(shouldLogout.toString());
+                  //devtools.log(shouldLogout.toString());
                   if (shouldLogout) {
                     await AuthService.firebase().logOut();
                     if (mounted) {
@@ -78,7 +76,25 @@ class _NotesViewState extends State<NotesView> {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                     case ConnectionState.active:
-                      return const Text('waiting for all notes to load..');
+                      if (snapshot.hasData) {
+                        final allNotes = snapshot.data as List<DatabaseNote>;
+                        return ListView.builder(
+                          itemCount: allNotes.length,
+                          itemBuilder: (context, index) {
+                            final note = allNotes[index];
+                            return ListTile(
+                              title: Text(
+                                note.text,
+                                maxLines: 1,
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
                     default:
                       return const CircularProgressIndicator();
                   }

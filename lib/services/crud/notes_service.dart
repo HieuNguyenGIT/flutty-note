@@ -13,15 +13,22 @@ class NotesService {
 
   // idk wtf this is
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesService() => _shared;
 
 // an empty list that content being added continously, control this note list
 // everything goona be read through this controller
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+
+  // -------------------------------------------------
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
@@ -49,12 +56,12 @@ class NotesService {
     final db = _getDatabaseOrThrow();
 
     await getNote(id: note.id);
-    final updateCount = await db.update(noteTable, {
+    final updatesCount = await db.update(noteTable, {
       textColumn: text,
       isSyncedWithCloudColumn: 0,
     });
 
-    if (updateCount == 0) {
+    if (updatesCount == 0) {
       throw CouldNotUpdateNote();
     } else {
       final updatedNote = await getNote(id: note.id);
