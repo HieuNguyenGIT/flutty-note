@@ -124,6 +124,7 @@ class NotesService {
   }
 
   Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final dbUser = await getUser(email: owner.email);
 
@@ -269,6 +270,7 @@ class DatabaseUser {
   DatabaseUser.fromRow(Map<String, Object?> map)
       : id = map[idColmun] as int,
         email = map[emailColumn] as String;
+
   @override
   String toString() => 'person, id = $id, email = $email';
 
@@ -301,7 +303,7 @@ class DatabaseNote {
             (map[isSyncedWithCloudColumn] as int) == 1 ? true : false;
   @override
   String toString() =>
-      'person, id = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, text = $text';
+      'person, ID = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, text = $text';
 
   @override
   bool operator ==(covariant DatabaseNote other) => id == other.id;
