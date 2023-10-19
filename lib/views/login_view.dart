@@ -67,11 +67,23 @@ class _LoginViewState extends State<LoginView> {
                 );
                 //devtools.log(userCredential.toString());
                 // use comma , to better formatting
-                if (mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    notesRoute,
-                    (route) => false,
-                  );
+                final user = FirebaseAuth.instance.currentUser;
+                if (user?.emailVerified ?? false) {
+                  // user's email is verified
+                  if (mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      notesRoute,
+                      (route) => false,
+                    );
+                  }
+                } else {
+                  // user's email is NOT verified
+                  if (mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      verifyEmailRoute,
+                      (route) => false,
+                    );
+                  }
                 }
                 //pushnamedandremoveuntil basically remove the previous page essentially and place a new one
                 // u should try to catch a specific error
