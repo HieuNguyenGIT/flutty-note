@@ -5,7 +5,7 @@ import 'package:fluttynotes/services/auth/auth_service.dart';
 import 'package:fluttynotes/services/crud/notes_service.dart';
 
 class NotesView extends StatefulWidget {
-  const NotesView({super.key});
+  const NotesView({Key? key}) : super(key: key);
 
   @override
   State<NotesView> createState() => _NotesViewState();
@@ -21,12 +21,6 @@ class _NotesViewState extends State<NotesView> {
     super.initState();
   }
 
-  // @override
-  // void dispose() {
-  //   _notesService.close();
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,27 +33,26 @@ class _NotesViewState extends State<NotesView> {
             },
             icon: const Icon(Icons.add),
           ),
-          PopupMenuButton(
+          PopupMenuButton<MenuAction>(
             onSelected: (value) async {
-              // log by default only take string value so sometime u may have to convert to string using tostring()
               switch (value) {
                 case MenuAction.logout:
-                  final shouldLogout = await showLogoutDialog(context);
-                  //devtools.log(shouldLogout.toString());
+                  final shouldLogout = await showLogOutDialog(context);
                   if (shouldLogout) {
                     await AuthService.firebase().logOut();
-                    if (mounted) {
-                      Navigator.of(context)
-                          .pushNamedAndRemoveUntil(loginRoute, (_) => false);
-                    }
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      loginRoute,
+                      (_) => false,
+                    );
                   }
               }
             },
             itemBuilder: (context) {
               return const [
-                //child is what user see
-                // value is what dev see
-                PopupMenuItem(value: MenuAction.logout, child: Text('logout')),
+                PopupMenuItem<MenuAction>(
+                  value: MenuAction.logout,
+                  child: Text('Log out'),
+                ),
               ];
             },
           )
@@ -109,25 +102,28 @@ class _NotesViewState extends State<NotesView> {
   }
 }
 
-Future<bool> showLogoutDialog(BuildContext context) {
+Future<bool> showLogOutDialog(BuildContext context) {
   return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('sign out'),
-          content: const Text('are you sure u want to sign out'),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: const Text('Cancel')),
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Logout'))
-          ],
-        );
-      }).then((value) => value ?? false);
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Sign out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Log out'),
+          ),
+        ],
+      );
+    },
+  ).then((value) => value ?? false);
 }
