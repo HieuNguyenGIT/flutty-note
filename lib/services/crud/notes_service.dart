@@ -1,17 +1,18 @@
 import 'dart:async';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttynotes/services/crud/crud_exceptions.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
+import 'dart:developer' as devtools show log;
 
 class NotesService {
   Database? _db; //this come from sqflite
 
   List<DatabaseNote> _notes = [];
 
-  // idk wtf this is
+  // this is a singleton, it make sure there only one instance being created
   static final NotesService _shared = NotesService._sharedInstance();
   NotesService._sharedInstance() {
     _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
@@ -31,19 +32,25 @@ class NotesService {
   // -------------------------------------------------
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
+    devtools.log(email.toString());
     try {
       final user = await getUser(email: email);
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      devtools.log(createdUser.toString());
       return createdUser;
     } catch (e) {
+      devtools.log('log at catch(e) of getOrcreateUser()');
+      devtools.log(e.toString());
       rethrow; // for debug
     }
   }
 
   Future<void> _cacheNotes() async {
     final allNotes = await getAllNotes();
+    devtools.log('allnotes =======');
+    devtools.log(allNotes.toString());
     _notes = allNotes.toList();
     _notesStreamController.add(_notes);
   }
@@ -163,6 +170,7 @@ class NotesService {
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
+    devtools.log('log at getUser()');
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final results = await db.query(
@@ -171,7 +179,6 @@ class NotesService {
       where: 'email =?',
       whereArgs: [email.toLowerCase()],
     );
-
     if (results.isEmpty) {
       throw CouldNotFindUser();
     } else {
@@ -232,11 +239,13 @@ class NotesService {
       throw DatabaseIsNotOpen();
     } else {
       await db.close();
+      _db = null;
     }
   }
 
   Future<void> _ensureDbIsOpen() async {
     try {
+      devtools.log('log at _ensureDbIsOpen');
       await open();
     } on DatabaseAlreadyOpenException {
       // empty
@@ -244,11 +253,15 @@ class NotesService {
   }
 
   Future<void> open() async {
+    //_db = null;
     if (_db != null) {
+      devtools.log('log at open() if _db != null');
+      devtools.log(_db.toString());
       throw DatabaseAlreadyOpenException;
     }
     try {
-      final docsPath = await getApplicationCacheDirectory();
+      devtools.log('log at try docpath execute');
+      final docsPath = await getApplicationDocumentsDirectory();
       final dbPath = join(docsPath.path, dbName);
       final db = await openDatabase(dbPath);
       _db = db;
@@ -260,7 +273,9 @@ class NotesService {
 
       // after create u have to save it somewhere
       await _cacheNotes();
+      devtools.log('finnished creating database');
     } on MissingPlatformDirectoryException {
+      devtools.log('errrr aaaaaaaaaaaaaaaaaaaaaaaaaaa');
       throw UnableToGetDocumentDirectory();
     }
   }
